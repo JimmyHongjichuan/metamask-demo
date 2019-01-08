@@ -8,7 +8,7 @@
     "react-blockies": "^1.2.2",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1",
-    "web3": "^0.20.6"
+    "web3": "^1.0.0-beta.37"
   },
   "scripts": {
     "start": "react-scripts start",

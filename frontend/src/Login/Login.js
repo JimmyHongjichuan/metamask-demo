@@ -10,6 +10,8 @@ class Login extends Component {
     loading: false // Loading button state
   };
 
+
+
   handleAuthenticate = ({ publicAddress, signature }) =>
     fetch(`${process.env.REACT_APP_BACKEND_URL}/auth`, {
       body: JSON.stringify({ publicAddress, signature }),
@@ -31,34 +33,53 @@ class Login extends Component {
       // with provider given by window.web3
       web3 = new Web3(window.web3.currentProvider);
     }
-    if (!web3.eth.coinbase) {
-      window.alert('Please activate MetaMask first.');
-      return;
-    }
-    const publicAddress = web3.eth.coinbase.toLowerCase();
+      console.log(web3);
+      let publicAddress;
+      try {
+
+          web3.eth.getCoinbase(function (err, result) {
+              if (err) {
+                  console.log("web3.eth.getCoinbase error = " + err);
+              } else {
+                  publicAddress = result;
+                  console.log("web3.eth.getCoinbase " + result);
+                  window.web3.personal.sign("Hello from Toptal!", publicAddress, console.log);
+              }
+          });
+          console.log('passed');
+      } catch (err) {
+          console.log('failed');
+          console.log(err);
+      }
+
+    // if (!web3.eth.getCoinbase()) {
+    //   window.alert('Please activate MetaMask first.');
+    //   return;
+    // }
+    // const publicAddress = web3.eth.coinbase.toLowerCase();
     this.setState({ loading: true });
 
     // Look if user with current publicAddress is already present on backend
-    fetch(
-      `${
-        process.env.REACT_APP_BACKEND_URL
-      }/users?publicAddress=${publicAddress}`
-    )
-      .then(response => response.json())
-      // If yes, retrieve it. If no, create it.
-      .then(
-        users => (users.length ? users[0] : this.handleSignup(publicAddress))
-      )
-      // Popup MetaMask confirmation modal to sign message
-      .then(this.handleSignMessage)
-      // Send signature to backend on the /auth route
-      .then(this.handleAuthenticate)
-      // Pass accessToken back to parent component (to save it in localStorage)
-      .then(onLoggedIn)
-      .catch(err => {
-        window.alert(err);
-        this.setState({ loading: false });
-      });
+    // fetch(
+    //   `${
+    //     process.env.REACT_APP_BACKEND_URL
+    //   }/users?publicAddress=${publicAddress}`
+    // )
+    //   .then(response => response.json())
+    //   // If yes, retrieve it. If no, create it.
+    //   .then(
+    //     users => (users.length ? users[0] : this.handleSignup(publicAddress))
+    //   )
+    //   // Popup MetaMask confirmation modal to sign message
+    //   .then(this.handleSignMessage)
+    //   // Send signature to backend on the /auth route
+    //   .then(this.handleAuthenticate)
+    //   // Pass accessToken back to parent component (to save it in localStorage)
+    //   .then(onLoggedIn)
+    //   .catch(err => {
+    //     window.alert(err);
+    //     this.setState({ loading: false });
+    //   });
   };
 
   handleSignMessage = ({ publicAddress, nonce }) => {
